@@ -8,8 +8,8 @@ SRC_DIRS:=./ ./set1
 SRC:=$(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.c))
 
 BDIR:=build
-OBJ:=$(foreach dir, $(SRC_DIRS), $(SRC:$(dir)/%.c=$(BDIR)/%.o))
-DEP:=$(foreach dir, $(SRC_DIRS), $(SRC:$(dir)/%.c=$(BDIR)/%.d))
+OBJ:=$(patsubst %.c, $(BDIR)/%.o, $(notdir $(SRC)))
+DEP:=$(patsubst $(BDIR)/%.o, $(BDIR)/%.h, $(OBJ))
 
 INCDIR:=include
 INC:=$(wildcard $(INCDIR)/*.h)
@@ -27,8 +27,8 @@ clean:
 	rm $(BDIR)/*
 
 # Maps all source files to object files
-$(BDIR)/%.o: $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/%.c)) 
-	$(CC) -c $(DEPFLAGS) $(CFLAGS) $(INCFLAG) $< -o $@
+$(BDIR)/%.o: */%.c
+	$(CC) -c $(INCFLAG) $(DEPFLAGS) $(CFLAGS) $< -o $@
 
 # Prevents errors when changing header names
 $(INC):

@@ -77,9 +77,9 @@ static void byte_chunk_to_base64(byte_t b1, byte_t b2, byte_t b3, char * out) {
     // Take the upper 6 bits of byte 1 as the 1st b64
     out[0] = to_base64(b1 >> 2);
     // Take the lower 2 bits of byte 1 and upper 4 bits of byte 2 as 2nd b64
-    out[1] = to_base64((b1 << 4) & 0x00ffffff | (b2 >> 4));
+    out[1] = to_base64(((b1 << 4) & 0x00ffffff) | (b2 >> 4));
     // Take the lower 4 bits of byte 2 and upper 2 bits of byte 3 as 3rd b64
-    out[2] = to_base64((b2 << 2) & 0x00ffffff | (b3 >> 6));
+    out[2] = to_base64(((b2 << 2) & 0x00ffffff) | (b3 >> 6));
     // Take the lower 6 bits of byte 3 as 4th b64
     out[3] = to_base64(b3 & 0x00ffffff);
 }
