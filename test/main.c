@@ -168,8 +168,19 @@ tst_begin_test(XOR_BYTES) {
 } tst_end_test()
 
 tst_begin_test(XOR_HEX) {
-    /*char * hex;*/
-
+    char * hex;
+    tst_assert_eq_str(hex = xor_hex("", ""), "");
+    free(hex);
+    tst_assert_eq_str(hex = xor_hex("abcd", "a3cd"), "0800");
+    free(hex);
+    // Hex values are padded after byte conversion, so result is padded as well
+    tst_assert_eq_str(hex = xor_hex("123", "456"), "0575");
+    free(hex);
+    tst_assert_eq_str(
+        hex = xor_hex("1c0111001f010100061a024b53535009181c", "686974207468652062756c6c277320657965"),
+        "746865206b696420646f6e277420706c6179"
+    );
+    free(hex);
 } tst_end_test()
 
 int main(void)
@@ -182,6 +193,7 @@ int main(void)
     tst_run_test(BYTES_TO_BASE64);
     tst_run_test(HEX_TO_BASE64);
     tst_run_test(XOR_BYTES);
+    tst_run_test(XOR_HEX);
 
     tst_report_results();
 }
