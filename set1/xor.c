@@ -53,9 +53,9 @@ byte_t * break_xor_cipher(const byte_t * buf, const size_t len, int * res_score,
         goto end;
     }
     
-    for (byte_t b = 0; b < 256; b++) {
+    for (int b = 0; b < 256; b++) {
         single_byte_xor(buf, plain, len, b);
-        int score = score_text(plain);
+        int score = score_text(plain, len);
         if (score > best_score) {
             best_score = score;
             key = b;

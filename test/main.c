@@ -183,6 +183,22 @@ tst_begin_test(XOR_HEX) {
     free(hex);
 } tst_end_test()
 
+tst_begin_test(SINGLE_BYTE_XOR) {
+    const byte_t plain[] = {0x12, 0x43, 0x96, 0x78};
+    byte_t cipher[sizeof(plain)];
+    const size_t len = sizeof(plain);
+    
+    const byte_t xor1[] = {0x33, 0x62, 0xb7, 0x59};
+    const byte_t xor2[] = {0xed, 0xbc, 0x69, 0x87};
+
+    single_byte_xor(plain, cipher, len, 0x00);
+    tst_assert_eq_bytes(cipher, plain, len);
+    single_byte_xor(plain, cipher, len, 0x21);
+    tst_assert_eq_bytes(cipher, xor1, len);
+    single_byte_xor(plain, cipher, len, 0xff);
+    tst_assert_eq_bytes(cipher, xor2, len);
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
@@ -194,6 +210,7 @@ int main(void)
     tst_run_test(HEX_TO_BASE64);
     tst_run_test(XOR_BYTES);
     tst_run_test(XOR_HEX);
+    tst_run_test(SINGLE_BYTE_XOR);
 
     tst_report_results();
 }

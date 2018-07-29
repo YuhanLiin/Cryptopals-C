@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "type.h"
 
 // Scores each letter based on its use % in English text. Non-letters get 0
