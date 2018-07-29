@@ -4,6 +4,7 @@
 #include "utils.h"
 
 #include "convert.h"
+#include "letter_score.h"
 #include "xor.h"
 
 tst_begin_test(FROM_HEX) {
@@ -199,6 +200,26 @@ tst_begin_test(SINGLE_BYTE_XOR) {
     tst_assert_eq_bytes(cipher, xor2, len);
 } tst_end_test()
 
+tst_begin_test(SCORE_LETTER) {
+    tst_assert_eq_int(score_letter('e'), 13);
+    tst_assert_eq_int(score_letter('t'), 9);
+    tst_assert_eq_int(score_letter('o'), 8);
+    tst_assert_eq_int(score_letter('d'), 4);
+    tst_assert_eq_int(score_letter(0xff), 0);
+
+    // Letter scores should be case insensitive
+    for (byte_t letter = 'a'; letter <= 'z'; letter++) {
+        byte_t cap = letter + 'A' - 'a';
+        tst_assert_eq_int(score_letter(letter), score_letter(cap));
+    }
+} tst_end_test()
+
+tst_begin_test(SCORE_TEXT) {
+    const byte_t text[] = {'e','t','a','o','i','n'};
+    const int total = 13 + 9 + 8 + 8 + 7 + 7;
+    tst_assert_eq_int(score_text(text, sizeof(text)), total);
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
@@ -211,6 +232,8 @@ int main(void)
     tst_run_test(XOR_BYTES);
     tst_run_test(XOR_HEX);
     tst_run_test(SINGLE_BYTE_XOR);
+    tst_run_test(SCORE_LETTER);
+    tst_run_test(SCORE_TEXT);
 
     tst_report_results();
 }
