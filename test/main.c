@@ -23,6 +23,13 @@ tst_begin_test(FROM_HEX) {
     tst_assert_eq_uint(from_hex('f'), 15);
 } tst_end_test()
 
+tst_begin_test(TO_HEX) {
+    tst_assert_eq_char(to_hex(0), '0');
+    tst_assert_eq_char(to_hex(9), '9');
+    tst_assert_eq_char(to_hex(10), 'a');
+    tst_assert_eq_char(to_hex(15), 'f');
+} tst_end_test()
+
 tst_begin_test(HEX_TO_BYTES) {
     const char * hex1 = "";
     const byte_t bytes1[] = {0};
@@ -55,6 +62,24 @@ tst_begin_test(HEX_TO_BYTES) {
     tst_assert_eq_uint(size, sizeof(bytes4));
     tst_assert_eq_bytes(bytes, bytes4, size);
     free(bytes);
+} tst_end_test()
+
+tst_begin_test(BYTES_TO_HEX) {
+    const byte_t bytes1[] = {0x00};
+    const byte_t bytes2[] = {0x00, 0xfe, 0x13};
+    char * hex;
+
+    hex = bytes_to_hex(bytes1, 0);
+    tst_assert_eq_str(hex, "");
+    free(hex);
+
+    hex = bytes_to_hex(bytes1, sizeof(bytes1));
+    tst_assert_eq_str(hex, "00");
+    free(hex);
+
+    hex = bytes_to_hex(bytes2, sizeof(bytes2));
+    tst_assert_eq_str(hex, "00fe13");
+    free(hex);
 } tst_end_test()
 
 tst_begin_test(TO_BASE64) {
@@ -115,7 +140,9 @@ tst_begin_test(HEX_TO_BASE64) {
 int main(void)
 {
     tst_run_test(FROM_HEX);
+    tst_run_test(TO_HEX);
     tst_run_test(HEX_TO_BYTES);
+    tst_run_test(BYTES_TO_HEX);
     tst_run_test(TO_BASE64);
     tst_run_test(BYTES_TO_BASE64);
     tst_run_test(HEX_TO_BASE64);

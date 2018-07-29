@@ -81,6 +81,8 @@ char * bytes_to_hex(const byte_t * bytes, const size_t bt_len) {
         // Extract lower 4 bits
         hex[h_idx + 1] = to_hex(byte & 0x0f);
     }
+    // Place the null char
+    hex[h_len] = '\0';
     return hex;
 }
 
