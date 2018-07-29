@@ -25,13 +25,13 @@ tst_begin_test(FROM_HEX) {
 
 tst_begin_test(HEX_TO_BYTES) {
     const char * hex1 = "";
-    const byte_t bytes1[1] = {0};
+    const byte_t bytes1[] = {0};
     const char * hex2 = "f";
-    const byte_t bytes2[1] = {0xf};
+    const byte_t bytes2[] = {0xf};
     const char * hex3 = "40";
-    const byte_t bytes3[1] = {0x40};
+    const byte_t bytes3[] = {0x40};
     const char * hex4 = "125ae";
-    const byte_t bytes4[5] = {0x01, 0x25, 0xae};
+    const byte_t bytes4[] = {0x01, 0x25, 0xae};
 
     byte_t * bytes = NULL;
     size_t size;
@@ -52,6 +52,7 @@ tst_begin_test(HEX_TO_BYTES) {
     free(bytes);
 
     bytes = hex_to_bytes(hex4, strlen(hex4), &size);
+    tst_assert_eq_uint(size, sizeof(bytes4));
     tst_assert_eq_bytes(bytes, bytes4, size);
     free(bytes);
 } tst_end_test()
@@ -67,11 +68,41 @@ tst_begin_test(TO_BASE64) {
     tst_assert_eq_char(to_base64(63), '/');
 } tst_end_test()
 
+tst_begin_test(BYTES_TO_BASE64) {
+    const byte_t bytes1[] = {0x0};
+    const byte_t bytes2[] = {0x32, 0xe0};
+    const byte_t bytes3[] = {0xef, 0x96, 0xac};
+    const byte_t bytes4[] = {0x11, 0x00, 0x00, 0xff};
+    char * base64;
+
+    base64 = bytes_to_base64(bytes1, 0);
+    tst_assert_eq_str(base64, "");
+    free(base64);
+
+    base64 = bytes_to_base64(bytes1, sizeof(bytes1));
+    tst_assert_eq_str(base64, "AA==");
+    free(base64);
+
+    base64 = bytes_to_base64(bytes2, sizeof(bytes2));
+    tst_assert_eq_str(base64, "MuA=");
+    free(base64);
+
+    base64 = bytes_to_base64(bytes3, sizeof(bytes3));
+    tst_assert_eq_str(base64, "75as");
+    free(base64);
+
+    base64 = bytes_to_base64(bytes4, sizeof(bytes4));
+    tst_assert_eq_str(base64, "EQAA/w==");
+    free(base64);
+
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
     tst_run_test(HEX_TO_BYTES);
     tst_run_test(TO_BASE64);
+    tst_run_test(BYTES_TO_BASE64);
 
     tst_report_results();
 }

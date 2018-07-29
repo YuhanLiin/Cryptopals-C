@@ -86,7 +86,7 @@ static void byte_chunk_to_base64(byte_t b1, byte_t b2, byte_t b3, char * out) {
 }
 
 char * bytes_to_base64(const byte_t * bytes, const size_t bt_len) {
-    // Every 3 bytes convert to 4 base64 numbers, so divide by 3 (round up) and times 4.
+    // Every 3 bytes convert to 4 base64 numbers, so divide by 3 (round up) then multiply by 4
     const size_t b64_len = (bt_len + 2) / 3 * 4;
 
     // Allocate an extra spot for the null char
@@ -96,27 +96,19 @@ char * bytes_to_base64(const byte_t * bytes, const size_t bt_len) {
     }
     
     size_t b_idx = 0, b64_idx = 0;
-    size_t extra_bytes = bt_len % 3;
-    if (extra_bytes == 1) {
-        byte_chunk_to_base64(0, 0, bytes[0], base64);
-        // 1 byte = 2 base64, so we want the 1st byte to align with the 1st and 2nd base64
-        base64[0] = base64[2];
-        base64[1] = base64[3];
-        b_idx = 1, b64_idx = 2;
-    }
-    else if (extra_bytes == 2) {
-        byte_chunk_to_base64(0, bytes[0], bytes[1], base64);
-        // 2 bytes = 3 base64, so we want bytes 1 and 2 to align with 1st, 2nd, and 3rd base64
-        base64[0] = base64[1];
-        base64[1] = base64[2];
-        base64[2] = base64[3];
-        b_idx = 2, b64_idx = 3;
-    }
-    
-    // The # of b64s remaining should be 4/3 of the # of bytes remaining
-    assert((b64_len - b64_idx) * 3 == (bt_len - b_idx) * 4);
     for (; b_idx < bt_len; b_idx += 3, b64_idx += 4) {
-        byte_chunk_to_base64(bytes[b_idx], bytes[b_idx+1], bytes[b_idx+2], &base64[b64_idx]);
+        if (b_idx == bt_len - 1) {
+            // Only 1 byte left, so 2 padding b64s are needed
+            byte_chunk_to_base64(bytes[b_idx], 0, 0, &base64[b64_idx]);
+            base64[b64_idx + 2] = '=';
+            base64[b64_idx + 3] = '=';
+        } else if (b_idx == bt_len - 2) {
+            // Only 2 bytes left, so 1 padding b64s are needed
+            byte_chunk_to_base64(bytes[b_idx], bytes[b_idx+1], 0, &base64[b64_idx]);
+            base64[b64_idx + 3] = '=';
+        } else {
+            byte_chunk_to_base64(bytes[b_idx], bytes[b_idx+1], bytes[b_idx+2], &base64[b64_idx]);
+        }
     }
     base64[b64_len] = '\0';
     return base64;
