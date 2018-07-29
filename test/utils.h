@@ -232,6 +232,16 @@ static _tst_hook_func_t _tst_g_teardown_ptr = &_tst_do_nothing;
 #define tst_assert_ne_uint( expr, expected )\
     tst_assert_uint( expr, expected, !_tst_int_cmp, "not equal" ) 
 
+// Char asserts
+#define tst_assert_char( expr, expected, cmp, cmp_text )\
+    _tst_assert_base( expr, expected, "'%c'", char, cmp, cmp_text )
+
+#define tst_assert_eq_char( expr, expected )\
+    tst_assert_char( expr, expected, _tst_int_cmp, "equal" ) 
+
+#define tst_assert_ne_char( expr, expected )\
+    tst_assert_char( expr, expected, !_tst_int_cmp, "not equal" ) 
+
 // String-type asserts
 #define _tst_str_cmp( a, b ) (strcmp( a, b ) == 0)
 
@@ -265,7 +275,7 @@ static _tst_hook_func_t _tst_g_teardown_ptr = &_tst_do_nothing;
 } while( 0 )
 
 #define _tst_assert_bytes( expr, expected, len, cmp, cmp_text )\
-    _tst_assert_array_base( expr, expected, len, "%"PRIu8, const uint8_t *, cmp, cmp_text )
+    _tst_assert_array_base( expr, expected, len, "%02x", const uint8_t *, cmp, cmp_text )
 
 #define tst_assert_eq_bytes( expr, expected, len )\
     _tst_assert_bytes( expr, expected, len, _tst_cmp_arr_bytes, "equal" );

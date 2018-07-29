@@ -30,8 +30,8 @@ byte_t from_hex(char hex) {
 
 // Converts array of hex characters into array of bytes of correct size
 // Returns dynamically allocated byte array ptr and its length
-byte_t * hex_to_bytes(const char * hex, size_t h_len, size_t * bytes_len) {
-    size_t bt_len = (h_len + 1) / 2;
+byte_t * hex_to_bytes(const char * hex, const size_t h_len, size_t * bytes_len) {
+    const size_t bt_len = (h_len + 1) / 2;
     byte_t * bytes = malloc(bt_len);
     if (bytes == NULL) {
         *bytes_len = 0;
@@ -49,9 +49,9 @@ byte_t * hex_to_bytes(const char * hex, size_t h_len, size_t * bytes_len) {
     } 
 
     assert((bt_len - b_idx) * 2 == (h_len - h_idx));
-    for (; h_idx < h_len; h_len += 2, bt_len++) {
-        byte_t byte = from_hex(hex[h_idx]);
-        byte &= from_hex(hex[h_idx + 1]);
+    for (; h_idx < h_len; h_idx += 2, b_idx++) {
+        byte_t byte = from_hex(hex[h_idx]) << 4;
+        byte |= from_hex(hex[h_idx + 1]);
         bytes[b_idx] = byte;
     }
     return bytes;
@@ -78,16 +78,16 @@ static void byte_chunk_to_base64(byte_t b1, byte_t b2, byte_t b3, char * out) {
     // Take the upper 6 bits of byte 1 as the 1st b64
     out[0] = to_base64(b1 >> 2);
     // Take the lower 2 bits of byte 1 and upper 4 bits of byte 2 as 2nd b64
-    out[1] = to_base64(((b1 << 4) & 0x00ffffff) | (b2 >> 4));
+    out[1] = to_base64(((b1 << 4) & 0x3f) | (b2 >> 4));
     // Take the lower 4 bits of byte 2 and upper 2 bits of byte 3 as 3rd b64
-    out[2] = to_base64(((b2 << 2) & 0x00ffffff) | (b3 >> 6));
+    out[2] = to_base64(((b2 << 2) & 0x3f) | (b3 >> 6));
     // Take the lower 6 bits of byte 3 as 4th b64
-    out[3] = to_base64(b3 & 0x00ffffff);
+    out[3] = to_base64(b3 & 0x3f);
 }
 
-char * bytes_to_base64(const byte_t * bytes, size_t bt_len) {
+char * bytes_to_base64(const byte_t * bytes, const size_t bt_len) {
     // Every 3 bytes convert to 4 base64 numbers, so divide by 3 (round up) and times 4.
-    size_t b64_len = (bt_len + 2) / 3 * 4;
+    const size_t b64_len = (bt_len + 2) / 3 * 4;
 
     // Allocate an extra spot for the null char
     char * base64 = malloc(b64_len + 1);
