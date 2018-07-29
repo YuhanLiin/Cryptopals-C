@@ -125,18 +125,26 @@ tst_begin_test(BYTES_TO_BASE64) {
 } tst_end_test()
 
 tst_begin_test(HEX_TO_BASE64) {
-    tst_assert_eq_str(hex_to_base64(""), "");
-    tst_assert_eq_str(hex_to_base64("a"), "Cg==");
-    tst_assert_eq_str(hex_to_base64("bc"), "vA==");
-    tst_assert_eq_str(hex_to_base64("123"), "ASM=");
-    tst_assert_eq_str(hex_to_base64("90fe"), "kP4=");
-    tst_assert_eq_str(hex_to_base64("ffffff"), "////");
+    char * hex;
+    tst_assert_eq_str(hex = hex_to_base64(""), "");
+    free(hex);
+    tst_assert_eq_str(hex = hex_to_base64("a"), "Cg==");
+    free(hex);
+    tst_assert_eq_str(hex = hex_to_base64("bc"), "vA==");
+    free(hex);
+    tst_assert_eq_str(hex = hex_to_base64("123"), "ASM=");
+    free(hex);
+    tst_assert_eq_str(hex = hex_to_base64("90fe"), "kP4=");
+    free(hex);
+    tst_assert_eq_str(hex = hex_to_base64("ffffff"), "////");
+    free(hex);
     tst_assert_eq_str(
-        hex_to_base64(
+        hex = hex_to_base64(
             "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d"
         ),
         "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
     );
+    free(hex);
 } tst_end_test()
 
 tst_begin_test(XOR_BYTES) {
@@ -157,6 +165,11 @@ tst_begin_test(XOR_BYTES) {
     xor = xor_bytes(bytes1, bytes2, 2);
     tst_assert_eq_bytes(xor, result2, 2);
     free(xor);
+} tst_end_test()
+
+tst_begin_test(XOR_HEX) {
+    /*char * hex;*/
+
 } tst_end_test()
 
 int main(void)

@@ -161,8 +161,8 @@ static _tst_hook_func_t _tst_g_teardown_ptr = &_tst_do_nothing;
 // Asserts equality. Type and format string of the values are needed
 // Requires comparator macro that returns true if the two values result in passing the test
 #define _tst_assert_base( expr, expected, fmt_spec, type, cmp, cmp_text ) do {\
-    type _expr = expr;\
-    type _expected = expected;\
+    type _expr = (expr);\
+    type _expected = (expected);\
     if( !cmp( _expr, _expected ) ){\
         fprintf(\
             stderr,\
@@ -189,8 +189,8 @@ static _tst_hook_func_t _tst_g_teardown_ptr = &_tst_do_nothing;
 } while( 0 )
 
 #define _tst_assert_array_base( expr, expected, len, fmt_spec, type, cmp_arr, cmp_text ) do {\
-    type _expr = expr;\
-    type _expected = expected;\
+    type _expr = (expr);\
+    type _expected = (expected);\
     bool _passed;\
     cmp_arr( _expr, _expected, len, _passed );\
     if( !_passed ) {\

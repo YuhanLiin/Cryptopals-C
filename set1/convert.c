@@ -143,6 +143,7 @@ char * bytes_to_base64(const byte_t * bytes, const size_t bt_len) {
     return base64;
 }
 
+// Converts hex string to bytes, then to base64 string. Caller must clean up base64 string
 char * hex_to_base64(const char * hex) {
     char * base64 = NULL;
     size_t bt_len;
