@@ -1,3 +1,4 @@
+#include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 
@@ -111,5 +112,16 @@ char * bytes_to_base64(const byte_t * bytes, const size_t bt_len) {
         }
     }
     base64[b64_len] = '\0';
+    return base64;
+}
+
+char * hex_to_base64(const char * hex) {
+    char * base64 = NULL;
+    size_t bt_len;
+    byte_t * bytes = hex_to_bytes(hex, strlen(hex), &bt_len);
+    if (bytes) {
+        base64 = bytes_to_base64(bytes, bt_len);
+    }
+    free(bytes);
     return base64;
 }

@@ -97,12 +97,28 @@ tst_begin_test(BYTES_TO_BASE64) {
 
 } tst_end_test()
 
+tst_begin_test(HEX_TO_BASE64) {
+    tst_assert_eq_str(hex_to_base64(""), "");
+    tst_assert_eq_str(hex_to_base64("a"), "Cg==");
+    tst_assert_eq_str(hex_to_base64("bc"), "vA==");
+    tst_assert_eq_str(hex_to_base64("123"), "ASM=");
+    tst_assert_eq_str(hex_to_base64("90fe"), "kP4=");
+    tst_assert_eq_str(hex_to_base64("ffffff"), "////");
+    tst_assert_eq_str(
+        hex_to_base64(
+            "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d"
+        ),
+        "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
+    );
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
     tst_run_test(HEX_TO_BYTES);
     tst_run_test(TO_BASE64);
     tst_run_test(BYTES_TO_BASE64);
+    tst_run_test(HEX_TO_BASE64);
 
     tst_report_results();
 }
