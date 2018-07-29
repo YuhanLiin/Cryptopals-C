@@ -29,6 +29,15 @@ byte_t from_hex(char hex) {
     }
 }
 
+// Converts 4-bit number (lower half of byte) to hex char
+char to_hex(byte_t num) {
+    assert(num < 16);
+    if (num < 10) {
+        return '0' + num;
+    }
+    return 'a' + num - 10;
+}
+
 // Converts array of hex characters into array of bytes of correct size
 // Returns dynamically allocated byte array ptr and its length
 byte_t * hex_to_bytes(const char * hex, const size_t h_len, size_t * bytes_len) {
@@ -56,6 +65,23 @@ byte_t * hex_to_bytes(const char * hex, const size_t h_len, size_t * bytes_len) 
         bytes[b_idx] = byte;
     }
     return bytes;
+}
+
+// Convert bytes into hex array
+char * bytes_to_hex(const byte_t * bytes, const size_t bt_len) {
+    const size_t h_len = bt_len * 2;
+    // Reserve 1 more spot for null character
+    char * hex = malloc(h_len + 1);
+    if (hex == NULL) return NULL;
+
+    for (size_t b_idx = 0, h_idx = 0; b_idx < bt_len; b_idx++, h_idx += 2) {
+        byte_t byte = bytes[b_idx];
+        // Extract upper 4 bits
+        hex[h_idx] = to_hex(byte >> 4);
+        // Extract lower 4 bits
+        hex[h_idx + 1] = to_hex(byte & 0x0f);
+    }
+    return hex;
 }
 
 // Converts base64 digit to its character representation. Assumes the digit is <64
