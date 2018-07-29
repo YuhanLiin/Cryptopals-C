@@ -4,12 +4,12 @@ CFLAGS:=-Wall -Wextra -Wformat=2 -Wundef -Wpointer-arith -Wcast-align\
 		-pedantic -std=c11 -g
 DEPFLAGS:=-MMD -MP
 
-SRC_DIRS:=./ ./set1
+SRC_DIRS:=test set1
 SRC:=$(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.c))
 
 BDIR:=build
 OBJ:=$(patsubst %.c, $(BDIR)/%.o, $(notdir $(SRC)))
-DEP:=$(patsubst $(BDIR)/%.o, $(BDIR)/%.h, $(OBJ))
+DEP:=$(patsubst $(BDIR)/%.o, $(BDIR)/%.d, $(OBJ))
 
 INCDIR:=include
 INC:=$(wildcard $(INCDIR)/*.h)
@@ -33,4 +33,4 @@ $(BDIR)/%.o: */%.c
 # Prevents errors when changing header names
 $(INC):
 
-#-include $(DEP)
+-include $(DEP)

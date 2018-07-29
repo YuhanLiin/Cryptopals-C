@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "type.h"
+#include "convert.h"
 
 // Converts hex character to 4-bit number in the lower half of a byte
 byte_t from_hex(char hex) {
