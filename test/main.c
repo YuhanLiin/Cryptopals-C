@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "convert.h"
 #include "utils.h"
+
+#include "convert.h"
+#include "xor.h"
 
 tst_begin_test(FROM_HEX) {
     tst_assert_eq_uint(from_hex('0'), 0);
@@ -137,6 +139,26 @@ tst_begin_test(HEX_TO_BASE64) {
     );
 } tst_end_test()
 
+tst_begin_test(XOR_BYTES) {
+    const byte_t bytes1[] = {0x12, 0xff};
+    const byte_t bytes2[] = {0x54, 0x23};
+    byte_t * xor;
+
+    // Just see if this crashes or not
+    xor = xor_bytes(bytes1, bytes1, 0);
+    free(xor);
+
+    const byte_t result1[] = {0, 0};
+    xor = xor_bytes(bytes1, bytes1, 2);
+    tst_assert_eq_bytes(xor, result1, 2);
+    free(xor);
+
+    const byte_t result2[] = {0x46, 0xdc};
+    xor = xor_bytes(bytes1, bytes2, 2);
+    tst_assert_eq_bytes(xor, result2, 2);
+    free(xor);
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
@@ -146,6 +168,7 @@ int main(void)
     tst_run_test(TO_BASE64);
     tst_run_test(BYTES_TO_BASE64);
     tst_run_test(HEX_TO_BASE64);
+    tst_run_test(XOR_BYTES);
 
     tst_report_results();
 }
