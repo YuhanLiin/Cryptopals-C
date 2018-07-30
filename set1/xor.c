@@ -73,14 +73,14 @@ end:
 
 // Loop thru every line in file and find the one most likely to be single-byte xorred by 
 // checking text scores
-byte_t * find_xor_cipher_in_file(const char * filename, byte_t * res_key) {
+byte_t * find_xor_cipher_in_file(const char * filename, size_t * res_len, byte_t * res_key) {
     int best_score = MINIMUM_TEXT_SCORE;
     byte_t best_key = 0x00;
+    size_t len = 0;
     byte_t * best_plain = NULL;
 
     char line[80];
     READ_LINES(filename, file, line, sizeof(line)) {
-        size_t len;
         byte_t * cypher = hex_to_bytes(line, strlen(line), &len);
         // On any allocation failure the code will clean up and go to next iteration,
         // since that's simpler
@@ -104,5 +104,6 @@ byte_t * find_xor_cipher_in_file(const char * filename, byte_t * res_key) {
         free(cypher);
     }
     *res_key = best_key;
+    *res_len = len;
     return best_plain;
 }

@@ -4,6 +4,7 @@
 #include "utils.h"
 
 #include "convert.h"
+#include "file.h"
 #include "letter_score.h"
 #include "xor.h"
 
@@ -237,6 +238,14 @@ tst_begin_test(BREAK_XOR_CIPHER) {
     free(buf);
 } tst_end_test()
 
+tst_begin_test(FIND_XOR_CYPHER_IN_FILE) {
+    size_t len;
+    byte_t key;
+    byte_t * bytes = find_xor_cipher_in_file(DATA_PATH("xor.txt"), &len, &key);
+    printf("%s\n", bytes_to_hex(bytes, len));
+    free(bytes);
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
@@ -252,6 +261,7 @@ int main(void)
     tst_run_test(SCORE_LETTER);
     tst_run_test(SCORE_TEXT);
     tst_run_test(BREAK_XOR_CIPHER);
+    tst_run_test(FIND_XOR_CYPHER_IN_FILE);
 
     tst_report_results();
 }
