@@ -12,3 +12,6 @@ byte_t * break_xor_cipher(const byte_t * buf, const size_t len, int * res_score,
 
 byte_t * find_xor_cipher_in_file(const char * filename, size_t * res_len, byte_t * res_key);
 
+void repeating_key_xor(
+    const byte_t * buf, byte_t * cipher, const size_t b_len,
+    const byte_t * key, const size_t k_len);

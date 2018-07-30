@@ -107,3 +107,13 @@ byte_t * find_xor_cipher_in_file(const char * filename, size_t * res_len, byte_t
     *res_len = len;
     return best_plain;
 }
+
+void repeating_key_xor(
+    const byte_t * buf, byte_t * cipher, const size_t b_len,
+    const byte_t * key, const size_t k_len)
+{
+    for (size_t i = 0; i < b_len; i++) {
+        size_t j = i % k_len;
+        cipher[i] = buf[i] ^ key[j];
+    }
+}

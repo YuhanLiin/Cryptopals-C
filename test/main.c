@@ -260,6 +260,22 @@ tst_begin_test(FIND_XOR_CYPHER_IN_FILE) {
     free(bytes);
 } tst_end_test()
 
+tst_begin_test(REPEATING_KEY_XOR) {
+    const char * plaintext =
+        "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal";
+    const size_t len = strlen(plaintext);
+    const byte_t * plain = BYTE_STR(plaintext);
+    const char * keytext = "ICE";
+    const size_t k_len = strlen(keytext);
+    const byte_t * key = BYTE_STR(keytext);
+    byte_t cipher[len];
+
+    repeating_key_xor(plain, cipher, len, key, k_len);
+    char * hex = bytes_to_hex(cipher, len);
+    tst_assert_eq_str(hex, "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f");
+    free(hex);
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
@@ -276,6 +292,7 @@ int main(void)
     tst_run_test(SCORE_TEXT);
     tst_run_test(BREAK_XOR_CIPHER);
     tst_run_test(FIND_XOR_CYPHER_IN_FILE);
+    tst_run_test(REPEATING_KEY_XOR);
 
     tst_report_results();
 }
