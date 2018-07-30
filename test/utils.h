@@ -275,7 +275,7 @@ static _tst_hook_func_t _tst_g_teardown_ptr = &_tst_do_nothing;
 } while( 0 )
 
 #define _tst_assert_bytes( expr, expected, len, cmp, cmp_text )\
-    _tst_assert_array_base( expr, expected, len, "%02x", const uint8_t *, cmp, cmp_text )
+    _tst_assert_array_base( expr, expected, len, "0x%02x", const uint8_t *, cmp, cmp_text )
 
 #define tst_assert_eq_bytes( expr, expected, len )\
     _tst_assert_bytes( expr, expected, len, _tst_cmp_arr_bytes, "equal" );

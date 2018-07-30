@@ -205,7 +205,9 @@ tst_begin_test(SCORE_LETTER) {
     tst_assert_eq_int(score_letter('t'), 9);
     tst_assert_eq_int(score_letter('o'), 8);
     tst_assert_eq_int(score_letter('d'), 4);
-    tst_assert_eq_int(score_letter(0xff), 0);
+    tst_assert_eq_int(score_letter(' '), 2);
+    tst_assert_eq_int(score_letter(','), 0);
+    tst_assert_eq_int(score_letter(0xff), -1);
 
     // Letter scores should be case insensitive
     for (byte_t letter = 'a'; letter <= 'z'; letter++) {
@@ -218,6 +220,21 @@ tst_begin_test(SCORE_TEXT) {
     const byte_t text[] = {'e','t','a','o','i','n'};
     const int total = 13 + 9 + 8 + 8 + 7 + 7;
     tst_assert_eq_int(score_text(text, sizeof(text)), total);
+} tst_end_test()
+
+tst_begin_test(BREAK_XOR_CIPHER) {
+    size_t len;
+    const char * cypher = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+    const byte_t * solution = (const byte_t *)"Cooking MC's like a pound of bacon";
+
+    byte_t * buf = hex_to_bytes(cypher, strlen(cypher), &len);
+    int best_score;
+    byte_t key;
+    byte_t * plain = break_xor_cipher(buf, len, &best_score, &key);
+    tst_assert_eq_uint(key, 0x58);
+    tst_assert_eq_bytes(plain, solution, len);
+    free(plain);
+    free(buf);
 } tst_end_test()
 
 int main(void)
@@ -234,6 +251,7 @@ int main(void)
     tst_run_test(SINGLE_BYTE_XOR);
     tst_run_test(SCORE_LETTER);
     tst_run_test(SCORE_TEXT);
+    tst_run_test(BREAK_XOR_CIPHER);
 
     tst_report_results();
 }
