@@ -232,6 +232,12 @@ tst_begin_test(BREAK_XOR_CIPHER) {
     int best_score;
     byte_t key;
     byte_t * plain = break_xor_cipher(buf, len, &best_score, &key);
+
+    // Null return value means allocation error or no valid ciphier has been decrypted
+    // Either way the later tests will segfault
+    tst_assert_ne_ptr(plain, NULL);
+    tst_abort_if_failing();
+
     tst_assert_eq_uint(key, 0x58);
     tst_assert_eq_bytes(plain, solution, len);
     free(plain);
@@ -243,6 +249,12 @@ tst_begin_test(FIND_XOR_CYPHER_IN_FILE) {
     size_t len;
     byte_t key;
     byte_t * bytes = find_xor_cipher_in_file(DATA_PATH("xor.txt"), &len, &key);
+
+    // Null return value means allocation error or no valid ciphier has been decrypted
+    // Either way the later tests will segfault
+    tst_assert_ne_ptr(bytes, NULL);
+    tst_abort_if_failing();
+
     tst_assert_eq_uint(key, 0x35);
     tst_assert_eq_bytes(bytes, solution, len);
     free(bytes);

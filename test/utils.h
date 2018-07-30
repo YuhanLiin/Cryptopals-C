@@ -232,6 +232,16 @@ static _tst_hook_func_t _tst_g_teardown_ptr = &_tst_do_nothing;
 #define tst_assert_ne_uint( expr, expected )\
     tst_assert_uint( expr, expected, !_tst_int_cmp, "not equal" ) 
 
+// Pointer asserts
+#define tst_assert_ptr( expr, expected, cmp, cmp_text )\
+    _tst_assert_base( expr, expected, "%p", void *, cmp, cmp_text )
+
+#define tst_assert_eq_ptr( expr, expected )\
+    tst_assert_ptr( expr, expected, _tst_int_cmp, "equal" ) 
+
+#define tst_assert_ne_ptr( expr, expected )\
+    tst_assert_ptr( expr, expected, !_tst_int_cmp, "not equal" ) 
+
 // Char asserts
 #define tst_assert_char( expr, expected, cmp, cmp_text )\
     _tst_assert_base( expr, expected, "'%c'", char, cmp, cmp_text )
