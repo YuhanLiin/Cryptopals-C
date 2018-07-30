@@ -206,8 +206,8 @@ tst_begin_test(SCORE_LETTER) {
     tst_assert_eq_int(score_letter('o'), 8);
     tst_assert_eq_int(score_letter('d'), 4);
     tst_assert_eq_int(score_letter(' '), 2);
-    tst_assert_eq_int(score_letter(','), 0);
-    tst_assert_eq_int(score_letter(0xff), -1);
+    tst_assert_eq_int(score_letter(','), 1);
+    tst_assert_eq_int(score_letter(0xff), 0);
 
     // Letter scores should be case insensitive
     for (byte_t letter = 'a'; letter <= 'z'; letter++) {

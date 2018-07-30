@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "type.h"
+#include "file.h"
 #include "convert.h"
 #include "letter_score.h"
 #include "xor.h"
@@ -46,7 +47,7 @@ void single_byte_xor(const byte_t * buf, byte_t * out, const size_t len, byte_t 
 // Returns the newly allocated result along with the key that produced it and its score
 byte_t * break_xor_cipher(const byte_t * buf, const size_t len, int * res_score, byte_t * res_key) {
     // The default score may be -ve in future
-    int best_score = -1;
+    int best_score = MINIMUM_TEXT_SCORE;
     byte_t key = 0x0;
     byte_t * plain = malloc(len);
     if (plain == NULL) {
@@ -68,4 +69,40 @@ end:
     *res_score = best_score;
     *res_key = key;
     return plain;
+}
+
+// Loop thru every line in file and find the one most likely to be single-byte xorred by 
+// checking text scores
+byte_t * find_xor_cipher_in_file(const char * filename, byte_t * res_key) {
+    int best_score = MINIMUM_TEXT_SCORE;
+    byte_t best_key = 0x00;
+    byte_t * best_plain = NULL;
+
+    char line[80];
+    READ_LINES(filename, file, line, sizeof(line)) {
+        size_t len;
+        byte_t * cypher = hex_to_bytes(line, strlen(line), &len);
+        // On any allocation failure the code will clean up and go to next iteration,
+        // since that's simpler
+        if (cypher) {
+            int score;
+            byte_t key;
+            byte_t * plain = break_xor_cipher(cypher, len, &score, &key);
+            // The score and key values are valid regardless of allocation failure in
+            // break_xor_cypher, so no need to null check
+            if (score > best_score) {
+                best_score = score;
+                best_key = key;
+                // Since best_plain is on heap, need to free when replacing it
+                free(best_plain);
+                best_plain = plain;
+            } else {
+                // If the current plaintext is not the most valid, discard it
+                free(plain);
+            }
+        }
+        free(cypher);
+    }
+    *res_key = best_key;
+    return best_plain;
 }

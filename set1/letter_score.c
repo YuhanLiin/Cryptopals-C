@@ -1,7 +1,9 @@
 #include <stddef.h>
+
+#include "letter_score.h"
 #include "type.h"
 
-// Scores each letter based on its use % in English text. Non-letters get -1
+// Scores each letter based on its use % in English text. Non-letters get 0
 int score_letter(byte_t ch) {
     switch (ch) {
         case 'e':
@@ -39,7 +41,7 @@ int score_letter(byte_t ch) {
             return 3;
         case ' ':
             return 2;
-        // Other visible symbols return 0
+        // Other visible symbols return 1
         case ';':
         case '\'':
         case '\\':
@@ -70,13 +72,13 @@ int score_letter(byte_t ch) {
         case '}':
         case '[':
         case ']':
-            return 0;
+            return 1;
         default:
             // Other letters/numbers return 1
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')) {
                 return 1;
             }
-            return -1;
+            return 0;
     }
 }
 
@@ -84,8 +86,8 @@ int score_text(const byte_t * buf, const size_t len) {
     int score = 0;
     for (size_t i = 0; i < len; i++) {
         int s = score_letter(buf[i]);
-        // If the byte isn't a letter then disqualify the text
-        if (s < 0) return -1;
+        // If the byte isnt a visible char then disqualify the string
+        if (s <= 0) return MINIMUM_TEXT_SCORE;
         score += s;
     }
     return score;
