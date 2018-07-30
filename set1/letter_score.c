@@ -44,7 +44,6 @@ int score_letter(byte_t ch) {
         // Other visible symbols return 1
         case ';':
         case '\'':
-        case '\\':
         case ':':
         case '"':
         case '|':
@@ -52,26 +51,17 @@ int score_letter(byte_t ch) {
         case '?':
         case '!':
         case '.':
-        case '>':
         case ',':
-        case '<':
         case '+':
         case '=':
         case '-':
-        case '_':
         case '(':
         case ')':
-        case '@':
-        case '#':
-        case '$':
         case '%':
-        case '^':
         case '&':
-        case '*':
-        case '{':
-        case '}':
         case '[':
         case ']':
+        case '\n':
             return 1;
         default:
             // Other letters/numbers return 1

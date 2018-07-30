@@ -226,7 +226,7 @@ tst_begin_test(SCORE_TEXT) {
 tst_begin_test(BREAK_XOR_CIPHER) {
     size_t len;
     const char * cypher = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-    const byte_t * solution = (const byte_t *)"Cooking MC's like a pound of bacon";
+    const byte_t * solution = BYTE_STR("Cooking MC's like a pound of bacon");
 
     byte_t * buf = hex_to_bytes(cypher, strlen(cypher), &len);
     int best_score;
@@ -239,10 +239,12 @@ tst_begin_test(BREAK_XOR_CIPHER) {
 } tst_end_test()
 
 tst_begin_test(FIND_XOR_CYPHER_IN_FILE) {
+    const byte_t * solution = BYTE_STR("Now that the party is jumping\n");
     size_t len;
     byte_t key;
     byte_t * bytes = find_xor_cipher_in_file(DATA_PATH("xor.txt"), &len, &key);
-    printf("%s\n", bytes_to_hex(bytes, len));
+    tst_assert_eq_uint(key, 0x35);
+    tst_assert_eq_bytes(bytes, solution, len);
     free(bytes);
 } tst_end_test()
 
