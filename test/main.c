@@ -3,6 +3,7 @@
 
 #include "utils.h"
 
+#include "break_repeating_xor.h"
 #include "convert.h"
 #include "file.h"
 #include "letter_score.h"
@@ -276,6 +277,35 @@ tst_begin_test(REPEATING_KEY_XOR) {
     free(hex);
 } tst_end_test()
 
+tst_begin_test(EDIT_DISTANCE) {
+    const char * text1 = "this is a test";
+    const char * text2 = "wokka wokka!!!";
+    tst_assert_eq_size(edit_distance(BYTE_STR(text1), BYTE_STR(text2), strlen(text1)), 37);
+    tst_assert_eq_size(edit_distance(BYTE_STR(text1), BYTE_STR(text1), strlen(text1)), 0);
+    tst_assert_eq_size(edit_distance(BYTE_STR(""), BYTE_STR(""), 0), 0);
+} tst_end_test()
+
+#define repeating_xor_roundtrip(plaintext, key) do {\
+    const size_t _len = strlen(plaintext);\
+    byte_t _cipher[_len];\
+    repeating_key_xor(BYTE_STR(plaintext), _cipher, _len, BYTE_STR(key), strlen(key));\
+    size_t _key_len;\
+    byte_t * _key = break_repeating_xor(_cipher, _len, &_key_len);\
+    tst_assert_ne_ptr(_key, NULL);\
+    tst_assert_eq_size(_key_len, strlen(key));\
+    tst_abort_if_failing(); /* Operations on the key will segfault if one of the above fails*/\
+    tst_assert_eq_bytes(_key, BYTE_STR(key), _key_len);\
+    tst_assert_eq_bytes(_cipher, BYTE_STR(plaintext), _len);\
+} while(0)
+
+tst_begin_test(BREAK_REPEATING_XOR) {
+    /*size_t data_len;*/
+    /*char * data = read_file_contents(DATA_PATH("repeat_xor.c"), &data_len);*/
+    /*size_t b_len;*/
+    /*byte_t * data = base64_to_bytes(data, &b_len);*/
+    // TODO rest of this shit
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
@@ -293,6 +323,8 @@ int main(void)
     tst_run_test(BREAK_XOR_CIPHER);
     tst_run_test(FIND_XOR_CYPHER_IN_FILE);
     tst_run_test(REPEATING_KEY_XOR);
+    tst_run_test(EDIT_DISTANCE);
+    tst_run_test(BREAK_REPEATING_XOR);
 
     tst_report_results();
 }

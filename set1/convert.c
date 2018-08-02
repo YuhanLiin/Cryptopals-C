@@ -61,7 +61,7 @@ byte_t * hex_to_bytes(const char * hex, const size_t h_len, size_t * bytes_len) 
     assert((bt_len - b_idx) * 2 == (h_len - h_idx));
     for (; h_idx < h_len; h_idx += 2, b_idx++) {
         byte_t byte = from_hex(hex[h_idx]) << 4;
-        byte |= from_hex(hex[h_idx + 1]);
+        byte |= (unsigned)from_hex(hex[h_idx + 1]);
         bytes[b_idx] = byte;
     }
     return bytes;
@@ -79,7 +79,7 @@ char * bytes_to_hex(const byte_t * bytes, const size_t bt_len) {
         // Extract upper 4 bits
         hex[h_idx] = to_hex(byte >> 4);
         // Extract lower 4 bits
-        hex[h_idx + 1] = to_hex(byte & 0x0f);
+        hex[h_idx + 1] = to_hex(byte & 0x0fu);
     }
     // Place the null char
     hex[h_len] = '\0';
@@ -107,11 +107,11 @@ static void byte_chunk_to_base64(byte_t b1, byte_t b2, byte_t b3, char * out) {
     // Take the upper 6 bits of byte 1 as the 1st b64
     out[0] = to_base64(b1 >> 2);
     // Take the lower 2 bits of byte 1 and upper 4 bits of byte 2 as 2nd b64
-    out[1] = to_base64(((b1 << 4) & 0x3f) | (b2 >> 4));
+    out[1] = to_base64(((b1 << 4) & 0x3fu) | (b2 >> 4));
     // Take the lower 4 bits of byte 2 and upper 2 bits of byte 3 as 3rd b64
-    out[2] = to_base64(((b2 << 2) & 0x3f) | (b3 >> 6));
+    out[2] = to_base64(((b2 << 2) & 0x3fu) | (b3 >> 6));
     // Take the lower 6 bits of byte 3 as 4th b64
-    out[3] = to_base64(b3 & 0x3f);
+    out[3] = to_base64(b3 & 0x3fu);
 }
 
 char * bytes_to_base64(const byte_t * bytes, const size_t bt_len) {

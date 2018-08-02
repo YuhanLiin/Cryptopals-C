@@ -66,7 +66,7 @@ int score_letter(byte_t ch) {
         default:
             // Other letters/numbers return 1
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')) {
-                return 1;
+                return 2;
             }
             return 0;
     }

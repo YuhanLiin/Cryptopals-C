@@ -80,28 +80,33 @@ byte_t * find_xor_cipher_in_file(const char * filename, size_t * res_len, byte_t
     byte_t * best_plain = NULL;
 
     char line[80];
-    READ_LINES(filename, file, line, sizeof(line)) {
-        byte_t * cypher = hex_to_bytes(line, strlen(line), &len);
-        // On any allocation failure the code will clean up and go to next iteration,
-        // since that's simpler
-        if (cypher) {
-            int score;
-            byte_t key;
-            byte_t * plain = break_xor_cipher(cypher, len, &score, &key);
-            // The score and key values are valid regardless of allocation failure in
-            // break_xor_cypher, so no need to null check
-            if (score > best_score) {
-                best_score = score;
-                best_key = key;
-                // Since best_plain is on heap, need to free when replacing it
-                free(best_plain);
-                best_plain = plain;
-            } else {
-                // If the current plaintext is not the most valid, discard it
-                free(plain);
+    FILE * file = fopen(filename, "r");
+    if (file) {
+        size_t line_len;
+        READ_LINES(file, line, line_len, sizeof(line)) {
+            byte_t * cypher = hex_to_bytes(line, line_len, &len);
+            // On any allocation failure the code will clean up and go to next iteration,
+            // since that's simpler
+            if (cypher) {
+                int score;
+                byte_t key;
+                byte_t * plain = break_xor_cipher(cypher, len, &score, &key);
+                // The score and key values are valid regardless of allocation failure in
+                // break_xor_cypher, so no need to null check
+                if (score > best_score) {
+                    best_score = score;
+                    best_key = key;
+                    // Since best_plain is on heap, need to free when replacing it
+                    free(best_plain);
+                    best_plain = plain;
+                } else {
+                    // If the current plaintext is not the most valid, discard it
+                    free(plain);
+                }
             }
+            free(cypher);
         }
-        free(cypher);
+        fclose(file);
     }
     *res_key = best_key;
     *res_len = len;

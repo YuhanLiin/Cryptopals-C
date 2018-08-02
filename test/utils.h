@@ -252,6 +252,16 @@ static _tst_hook_func_t _tst_g_teardown_ptr = &_tst_do_nothing;
 #define tst_assert_ne_char( expr, expected )\
     tst_assert_char( expr, expected, !_tst_int_cmp, "not equal" ) 
 
+// Size_t asserts
+#define tst_assert_size( expr, expected, cmp, cmp_text )\
+    _tst_assert_base( expr, expected, "%zu", size_t, cmp, cmp_text )
+
+#define tst_assert_eq_size( expr, expected )\
+    tst_assert_size( expr, expected, _tst_int_cmp, "equal" ) 
+
+#define tst_assert_ne_size( expr, expected )\
+    tst_assert_size( expr, expected, !_tst_int_cmp, "not equal" ) 
+
 // String-type asserts
 #define _tst_str_cmp( a, b ) (strcmp( a, b ) == 0)
 
