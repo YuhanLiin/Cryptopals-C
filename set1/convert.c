@@ -102,7 +102,7 @@ char to_base64(byte_t digit) {
     assert(0 && "Invalid base64 digit");
 }
 
-// Converts base64 character to 6 bit number. Padding char is returned as 0xff.
+// Converts base64 character to 6 bit number. Padding char is not handled.
 byte_t from_base64(char b64) {
     if (b64 >= 'A' && b64 <= 'Z') {
         return b64 - 'A';
@@ -116,7 +116,6 @@ byte_t from_base64(char b64) {
     switch (b64) {
         case '+': return 62;
         case '/': return 63;
-        case '=': return 0xff;
         default:
             assert(0 && "Invalid Base64 character");
     }
@@ -161,6 +160,62 @@ char * bytes_to_base64(const byte_t * bytes, const size_t bt_len) {
     }
     base64[b64_len] = '\0';
     return base64;
+}
+
+// Converts 4 base64 characters into 1 to 3 output bytes. Returns number of output bytes written
+static size_t base64_to_byte_chunk(char base64[4], byte_t * out) {
+    size_t num_of_bytes = 0;
+
+    // Cannot have all 4 chars be padding, so if there's a padding here let it fail
+    byte_t val1 = from_base64(base64[0]);
+    // 1st b64 forms upper 6 bits of 1st byte
+    out[0] = val1 << 2;
+
+    // Can't have 3 padding chars either
+    byte_t val2 = from_base64(base64[1]);
+    // The upper 2 bits of the 2nd b64 forms lower 2 bits of the 1st byte
+    out[0] += val2 >> 4;
+    // The lower 4 bits of the 2nd b64 forms upper 4 bits of 2nd byte
+    out[1] = val2 << 4;
+    num_of_bytes++;
+
+    if (base64[2] == '=') return num_of_bytes;
+    byte_t val3 = from_base64(base64[2]);
+    // Upper 4 bits of 3rd b64 forms lower 4 bits of 2nd byte
+    out[1] += val3 >> 2;
+    // Lower 2 bits of 3rd b64 forms upper 2 bits of 3rd byte
+    out[2] = val3 << 6;
+    num_of_bytes++;
+
+    if (base64[3] == '=') return num_of_bytes;
+    byte_t val4 = from_base64(base64[3]);
+    // 4th b64 forms lower 6 bits of 3rd byte
+    out[2] += val4;
+    num_of_bytes++;
+
+    return num_of_bytes;
+}
+
+// Convert base64 string to allocated byte array. Returns the array and sets the array length.
+// On fail returns NULL and sets length to invalid value.
+byte_t * base64_to_bytes(const char * base64, const size_t b64_len, size_t * bt_len) {
+    // Base64 must come in groups of 4
+    assert(b64_len % 4 == 0);
+    byte_t * bytes = malloc(b64_len / 4 * 3);
+    if (bytes == NULL) {
+        return NULL;
+    }
+
+    // Convert the base64 string 4 characters at a time
+    size_t b_idx, b64_idx;
+    for (b_idx = 0, b64_idx = 0; b64_idx < b64_len; b64_idx += 4) {
+        char b64_chunk[] = {
+            base64[b64_idx], base64[b64_idx + 1], base64[b64_idx + 2], base64[b64_idx + 3]
+        };
+        b_idx += base64_to_byte_chunk(b64_chunk, &bytes[b_idx]);
+    }
+    *bt_len = b_idx;
+    return bytes;
 }
 
 // Converts hex string to bytes, then to base64 string. Caller must clean up base64 string

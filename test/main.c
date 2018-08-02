@@ -135,7 +135,23 @@ tst_begin_test(BYTES_TO_BASE64) {
     base64 = bytes_to_base64(bytes4, sizeof(bytes4));
     tst_assert_eq_str(base64, "EQAA/w==");
     free(base64);
+} tst_end_test()
 
+#define test_b64_to_bytes(base64, exp_bytes, byte_len) do {\
+    size_t _len;\
+    const byte_t _exp_bytes[] = exp_bytes;\
+    byte_t * _bytes = base64_to_bytes(base64, strlen(base64), &_len);\
+    tst_assert_eq_size(_len, byte_len);\
+    tst_assert_eq_bytes(_bytes, _exp_bytes, _len);\
+    free(_bytes);\
+} while(0)
+
+tst_begin_test(BASE64_TO_BYTES) {
+    test_b64_to_bytes("", ARR(0), 0);
+    test_b64_to_bytes("AA==", ARR(0x0), 1);
+    test_b64_to_bytes("MuA=", ARR(0x32, 0xe0), 2);
+    test_b64_to_bytes("75as", ARR(0xef, 0x96, 0xac), 3);
+    test_b64_to_bytes("EQAA/w==", ARR(0x11, 0x00, 0x00, 0xff), 4);
 } tst_end_test()
 
 tst_begin_test(HEX_TO_BASE64) {
@@ -325,6 +341,7 @@ int main(void)
     tst_run_test(BYTES_TO_HEX);
     tst_run_test(TO_BASE64);
     tst_run_test(FROM_BASE64);
+    tst_run_test(BASE64_TO_BYTES);
     tst_run_test(BYTES_TO_BASE64);
     tst_run_test(HEX_TO_BASE64);
     tst_run_test(XOR_BYTES);

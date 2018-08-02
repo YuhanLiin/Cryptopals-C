@@ -11,3 +11,6 @@ typedef uint8_t byte_t;
 // Unsafe min/max macros
 #define MIN(a, b) (a) > (b) ? (b) : (a)
 #define MAX(a, b) (a) > (b) ? (a) : (b)
+
+// Array literal macro
+#define ARR(...) {__VA_ARGS__}
