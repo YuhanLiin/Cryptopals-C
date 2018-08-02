@@ -98,6 +98,17 @@ tst_begin_test(TO_BASE64) {
     tst_assert_eq_char(to_base64(63), '/');
 } tst_end_test()
 
+tst_begin_test(FROM_BASE64) {
+    tst_assert_eq_char(from_base64('A'), 0);
+    tst_assert_eq_char(from_base64('Z'), 25);
+    tst_assert_eq_char(from_base64('a'), 26);
+    tst_assert_eq_char(from_base64('z'), 51);
+    tst_assert_eq_char(from_base64('0'), 52);
+    tst_assert_eq_char(from_base64('9'), 61);
+    tst_assert_eq_char(from_base64('+'), 62);
+    tst_assert_eq_char(from_base64('/'), 63);
+} tst_end_test()
+
 tst_begin_test(BYTES_TO_BASE64) {
     const byte_t bytes1[] = {0x0};
     const byte_t bytes2[] = {0x32, 0xe0};
@@ -313,6 +324,7 @@ int main(void)
     tst_run_test(HEX_TO_BYTES);
     tst_run_test(BYTES_TO_HEX);
     tst_run_test(TO_BASE64);
+    tst_run_test(FROM_BASE64);
     tst_run_test(BYTES_TO_BASE64);
     tst_run_test(HEX_TO_BASE64);
     tst_run_test(XOR_BYTES);

@@ -102,6 +102,26 @@ char to_base64(byte_t digit) {
     assert(0 && "Invalid base64 digit");
 }
 
+// Converts base64 character to 6 bit number. Padding char is returned as 0xff.
+byte_t from_base64(char b64) {
+    if (b64 >= 'A' && b64 <= 'Z') {
+        return b64 - 'A';
+    }
+    if (b64 >= 'a' && b64 <= 'z') {
+        return b64 - 'a' + 26;
+    }
+    if (b64 >= '0' && b64 <= '9') {
+        return b64 - '0' + 52;
+    }
+    switch (b64) {
+        case '+': return 62;
+        case '/': return 63;
+        case '=': return 0xff;
+        default:
+            assert(0 && "Invalid Base64 character");
+    }
+}
+
 // Converts 3 bytes to 4 base64 characters. Assumes output pointer has at least 4 chars allocated
 static void byte_chunk_to_base64(byte_t b1, byte_t b2, byte_t b3, char * out) {
     // Take the upper 6 bits of byte 1 as the 1st b64
