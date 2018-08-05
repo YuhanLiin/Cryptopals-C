@@ -234,9 +234,7 @@ tst_begin_test(SCORE_LETTER) {
     tst_assert_eq_int(score_letter('t'), 9);
     tst_assert_eq_int(score_letter('o'), 8);
     tst_assert_eq_int(score_letter('d'), 4);
-    tst_assert_eq_int(score_letter(' '), 2);
-    tst_assert_eq_int(score_letter(','), 1);
-    tst_assert_eq_int(score_letter(0xff), 0);
+    tst_assert_eq_int(score_letter(0xff), MINIMUM_TEXT_SCORE);
 
     // Letter scores should be case insensitive
     for (byte_t letter = 'a'; letter <= 'z'; letter++) {
@@ -323,14 +321,27 @@ tst_begin_test(EDIT_DISTANCE) {
     tst_abort_if_failing(); /* Operations on the key will segfault if one of the above fails*/\
     tst_assert_eq_bytes(_key, BYTE_STR(key), _key_len);\
     tst_assert_eq_bytes(_cipher, BYTE_STR(plaintext), _len);\
+    free(key);\
 } while(0)
 
 tst_begin_test(BREAK_REPEATING_XOR) {
-    /*size_t data_len;*/
-    /*char * data = read_file_contents(DATA_PATH("repeat_xor.c"), &data_len);*/
-    /*size_t b_len;*/
-    /*byte_t * data = base64_to_bytes(data, &b_len);*/
-    // TODO rest of this shit
+    FILE * file = fopen(DATA_PATH("repeat_xor.txt"), "r");
+    tst_assert_ne_ptr(file, NULL);
+    tst_abort_if_failing();
+
+    size_t data_len;
+    size_t b_len;
+    size_t k_len;
+    char data[8000];
+    // There should only be one line in the test file, so just read extract the last line
+    READ_LINES(file, data, data_len, sizeof(data));
+    byte_t * cipher = base64_to_bytes(data, data_len, &b_len);
+    byte_t * key = break_repeating_xor(cipher, b_len, &k_len);
+
+    tst_assert_ne_ptr(key, NULL);
+    tst_assert_eq_size(k_len, 29);
+    tst_assert_eq_bytes(key, BYTE_STR("Terminator X: Bring the noise"), k_len);
+    free(key);
 } tst_end_test()
 
 int main(void)
