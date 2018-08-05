@@ -310,20 +310,6 @@ tst_begin_test(EDIT_DISTANCE) {
     tst_assert_eq_size(edit_distance(BYTE_STR(""), BYTE_STR(""), 0), 0);
 } tst_end_test()
 
-#define repeating_xor_roundtrip(plaintext, key) do {\
-    const size_t _len = strlen(plaintext);\
-    byte_t _cipher[_len];\
-    repeating_key_xor(BYTE_STR(plaintext), _cipher, _len, BYTE_STR(key), strlen(key));\
-    size_t _key_len;\
-    byte_t * _key = break_repeating_xor(_cipher, _len, &_key_len);\
-    tst_assert_ne_ptr(_key, NULL);\
-    tst_assert_eq_size(_key_len, strlen(key));\
-    tst_abort_if_failing(); /* Operations on the key will segfault if one of the above fails*/\
-    tst_assert_eq_bytes(_key, BYTE_STR(key), _key_len);\
-    tst_assert_eq_bytes(_cipher, BYTE_STR(plaintext), _len);\
-    free(key);\
-} while(0)
-
 tst_begin_test(BREAK_REPEATING_XOR) {
     FILE * file = fopen(DATA_PATH("repeat_xor.txt"), "r");
     tst_assert_ne_ptr(file, NULL);

@@ -68,19 +68,22 @@ static float find_key(byte_t * bytes, const size_t len, byte_t * key, const size
     return total_score / (float)len;
 }
 
+// Number of keysized chunks to use to compute the edit distance used to determine keysizes
+#define KEYSIZED_CHUNKS_COUNT 4
+
 // Returns the repeated key and its length as well as decrypting the byte string in place.
 // On failure (no memory or valid key) null is returned and the length and byte string are invalidated.
 byte_t * break_repeating_xor(byte_t * bytes,
                              const size_t len,
                              size_t * key_len) {
     // Algorithm only works on strings at least 4 keysizes long
-    if (len < MIN_KEYSIZE * 4) {
+    if (len < MIN_KEYSIZE * KEYSIZED_CHUNKS_COUNT) {
         return NULL;
     }
     // As such, the max keysize can't be more than half the string length
-    const size_t max_keysize = MIN(len / 2, MAX_KEYSIZE);
+    const size_t max_keysize = MIN(len / KEYSIZED_CHUNKS_COUNT, MAX_KEYSIZE);
 
-    struct Key_tuple key_tuples[max_keysize - MIN_KEYSIZE];
+    struct Key_tuple key_tuples[max_keysize - MIN_KEYSIZE + 1];
     for (size_t keysize = MIN_KEYSIZE; keysize <= max_keysize; keysize++) {
         // Find edit distances between consecutive keysized chunks of the string
         size_t dist1 = edit_distance(&bytes[0], &bytes[keysize], keysize);
@@ -93,9 +96,10 @@ byte_t * break_repeating_xor(byte_t * bytes,
             (struct Key_tuple){.norm_dist = norm_dist, .key_len = keysize};
     }
 
+    const size_t key_tuples_len = sizeof(key_tuples) / sizeof(struct Key_tuple);
     qsort(
         key_tuples,
-        sizeof(key_tuples) / sizeof(struct Key_tuple),
+        key_tuples_len,
         sizeof(struct Key_tuple),
         &keycmp
     );
@@ -108,7 +112,7 @@ byte_t * break_repeating_xor(byte_t * bytes,
     float best_key_score = MINIMUM_TEXT_SCORE;
 
     // Take the 5 best key lengths and find the one with the best score
-    for (size_t i = 0; i < 5; i++) {
+    for (size_t i = 0; i < MIN(5, key_tuples_len); i++) {
         memcpy(cpy, bytes, len);
         size_t k_len = key_tuples[i].key_len;
         float score = find_key(cpy, len, key, k_len);
