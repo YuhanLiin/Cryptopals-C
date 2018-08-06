@@ -2,6 +2,7 @@ CC:=gcc
 CFLAGS:=-Wall -Wextra -Wformat=2 -Wundef -Wpointer-arith -Wcast-align\
 	    -Wstrict-prototypes -Wwrite-strings -Wswitch-default -Werror\
 		-pedantic -std=c11 -g
+LFLAGS:=-lssl -lcrypto
 DEPFLAGS:=-MMD -MP
 
 SRC_DIRS:=test set1
@@ -20,7 +21,7 @@ PROG=crypto
 .PHONY: all
 all: $(PROG)
 $(PROG): $(OBJ)
-	$(CC) $^ -o $(PROG)
+	$(CC) $^ -o $(PROG) $(LFLAGS)
 
 .PHONY: clean
 clean:
@@ -28,7 +29,7 @@ clean:
 
 # Maps all source files to object files
 $(BDIR)/%.o: */%.c
-	$(CC) -c $(INCFLAG) $(DEPFLAGS) $(CFLAGS) $< -o $@
+	$(CC) -c $(INCFLAG) $(DEPFLAGS) $(CFLAGS) $< -o $@ 
 
 # Prevents errors when changing header names
 $(INC):
