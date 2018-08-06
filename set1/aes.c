@@ -71,13 +71,14 @@ static bool bytes_eq(const byte_t * b1, const byte_t * b2, const size_t len) {
     return true;
 }
 
+// Count number of repeated blocks in the text. Assumes that length == blk_size * blk_count
 size_t count_repeated_blocks(const byte_t * bytes,
                              const size_t blk_size,
                              const size_t blk_count) {
     size_t repeat = 0;
     for (size_t i = 0; i < blk_count; i++) {
-        for (size_t j = 0; j < blk_count; j++) {
-            if (bytes_eq(bytes + i * blk_count, bytes + j * blk_count, blk_size)) {
+        for (size_t j = i + 1; j < blk_count; j++) {
+            if (bytes_eq(bytes + i * blk_size, bytes + j * blk_size, blk_size)) {
                 repeat += 1;
             }
         }
@@ -85,34 +86,38 @@ size_t count_repeated_blocks(const byte_t * bytes,
     return repeat;
 }
 
-#define MAX_LINE_LEN 200
+#define MAX_LINE_LEN 1000
 #define BLK_SIZE 16
 // Find the line in a hex file with the highest number of repeated 16-byte blocks
 // Returns null on fail
-byte_t * detect_aes_ecb(const char * filename) {
-    size_t highest_repeats = 0;
+byte_t * detect_aes_ecb(const char * filename, size_t * len) {
+    size_t highest_repeats = 0, best_len = 0;
     byte_t * best_text = NULL;
 
     FILE * file = fopen(filename, "r");
-    if (file == NULL) return NULL;
+    if (file == NULL) goto end;
     char line[MAX_LINE_LEN];
     size_t line_len;
     // Find the line in the text with the most number of repeated 16-byte blocks
     READ_LINES(file, line, line_len, sizeof(line)) {
-        assert(line_len % BLK_SIZE == 0);
         // Convert each line from hex to bytes
         size_t b_len;
         byte_t * bytes = hex_to_bytes(line, line_len, &b_len);
         if (bytes == NULL) continue;
 
-        size_t repeats = count_repeated_blocks(bytes, BLK_SIZE, line_len / BLK_SIZE);
+        assert(b_len % BLK_SIZE == 0);
+        size_t repeats = count_repeated_blocks(bytes, BLK_SIZE, b_len / BLK_SIZE);
         if (repeats > highest_repeats) {
             highest_repeats = repeats;
+            best_len = b_len;
             free(best_text);
             best_text = bytes;
         } else {
             free(bytes);
         }
     }
+    fclose(file);
+end:
+    *len = best_len;
     return best_text;
 }

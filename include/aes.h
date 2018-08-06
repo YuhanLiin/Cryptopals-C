@@ -11,4 +11,4 @@ size_t count_repeated_blocks(const byte_t * bytes,
                              const size_t blk_size,
                              const size_t blk_count);
 
-byte_t * detect_aes_ecb(const char * filename);
+byte_t * detect_aes_ecb(const char * filename, size_t * len);

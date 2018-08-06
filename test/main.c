@@ -421,6 +421,24 @@ tst_begin_test(DECRYPT_AES_FILE) {
     tst_assert_eq_bytes(plain, BYTE_STR(rap), (size_t)len);
 } tst_end_test()
 
+tst_begin_test(COUNT_REPEATED_BLOCKS) {
+    tst_assert_eq_size(count_repeated_blocks(BYTE_STR("abcdabcdabdc"), 4, 3), 1);
+    tst_assert_eq_size(count_repeated_blocks(BYTE_STR("abcdabcdabdc"), 2, 6), 4);
+    tst_assert_eq_size(count_repeated_blocks(BYTE_STR("abcdefg"), 3, 2), 0);
+    tst_assert_eq_size(count_repeated_blocks(BYTE_STR(""), 0, 0), 0);
+} tst_end_test()
+
+tst_begin_test(DETECT_AES_ECB) {
+    size_t len;
+    byte_t * bytes = detect_aes_ecb(DATA_PATH("detect_aes_ecb.txt"), &len);
+    char * hex = bytes_to_hex(bytes, len);
+    const char * cipher = "d880619740a8a19b7840a8a31c810a3d08649af70dc06f4fd5d2d69c744cd283e2dd052f6b641dbf9d11b0348542bb5708649af70dc06f4fd5d2d69c744cd2839475c9dfdbc1d46597949d9c7e82bf5a08649af70dc06f4fd5d2d69c744cd28397a93eab8d6aecd566489154789a6b0308649af70dc06f4fd5d2d69c744cd283d403180c98c8f6db1f2a3f9c4040deb0ab51b29933f2c123c58386b06fba186a";
+    tst_assert_eq_size(len, 160);
+    tst_assert_eq_str(hex, cipher);
+    free(hex);
+    free(bytes);
+} tst_end_test()
+
 int main(void)
 {
     tst_run_test(FROM_HEX);
@@ -443,6 +461,8 @@ int main(void)
     tst_run_test(EDIT_DISTANCE);
     tst_run_test(BREAK_REPEATING_XOR);
     tst_run_test(DECRYPT_AES_FILE);
+    tst_run_test(COUNT_REPEATED_BLOCKS);
+    tst_run_test(DETECT_AES_ECB);
 
     tst_report_results();
 }
