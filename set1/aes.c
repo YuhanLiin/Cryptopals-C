@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include <openssl/evp.h>
 #include <openssl/ssl.h>
 #include <openssl/rsa.h>
@@ -60,4 +62,57 @@ int decrypt_aes_file(const char * filename, const byte_t * key, byte_t * out) {
         fclose(file);
     }
     return out_len;
+}
+
+static bool bytes_eq(const byte_t * b1, const byte_t * b2, const size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        if (b1[i] != b2[i]) return false;
+    }
+    return true;
+}
+
+size_t count_repeated_blocks(const byte_t * bytes,
+                             const size_t blk_size,
+                             const size_t blk_count) {
+    size_t repeat = 0;
+    for (size_t i = 0; i < blk_count; i++) {
+        for (size_t j = 0; j < blk_count; j++) {
+            if (bytes_eq(bytes + i * blk_count, bytes + j * blk_count, blk_size)) {
+                repeat += 1;
+            }
+        }
+    }
+    return repeat;
+}
+
+#define MAX_LINE_LEN 200
+#define BLK_SIZE 16
+// Find the line in a hex file with the highest number of repeated 16-byte blocks
+// Returns null on fail
+byte_t * detect_aes_ecb(const char * filename) {
+    size_t highest_repeats = 0;
+    byte_t * best_text = NULL;
+
+    FILE * file = fopen(filename, "r");
+    if (file == NULL) return NULL;
+    char line[MAX_LINE_LEN];
+    size_t line_len;
+    // Find the line in the text with the most number of repeated 16-byte blocks
+    READ_LINES(file, line, line_len, sizeof(line)) {
+        assert(line_len % BLK_SIZE == 0);
+        // Convert each line from hex to bytes
+        size_t b_len;
+        byte_t * bytes = hex_to_bytes(line, line_len, &b_len);
+        if (bytes == NULL) continue;
+
+        size_t repeats = count_repeated_blocks(bytes, BLK_SIZE, line_len / BLK_SIZE);
+        if (repeats > highest_repeats) {
+            highest_repeats = repeats;
+            free(best_text);
+            best_text = bytes;
+        } else {
+            free(bytes);
+        }
+    }
+    return best_text;
 }
